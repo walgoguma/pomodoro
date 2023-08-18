@@ -11,21 +11,34 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   int totalSeconds = 1500;
+  bool isRunning = false; // false: 동작중, true: 정지
   late Timer timer;
 
-  //초에 관한 변수값을 1씩 q뺌
+  //초에 관한 변수값을 1씩 뺌
   void onTick(Timer timer) {
     setState(() {
       totalSeconds = totalSeconds - 1;
     });
   }
 
-  //1초 마다 onTick 함수(초에 관한 변수값을 1씩 q뺌) 실행
+  // 시작 버튼을 눌렀을 때 동작하는 함수
   void onStartPressed() {
+    //1초 마다 onTick 함수(초에 관한 변수값을 1씩 뺌) 실행
     timer = Timer.periodic(
       const Duration(seconds: 1),
       onTick,
     );
+    // 동작상태를 동작 중으로 변경한다.
+    setState(() {
+      isRunning = true;
+    });
+  }
+
+  void onPausePressed() {
+    timer.cancel();
+    setState(() {
+      isRunning = false;
+    });
   }
 
   @override
@@ -53,9 +66,11 @@ class HomeScreenState extends State<HomeScreen> {
                 child: IconButton(
               iconSize: 120,
               color: Theme.of(context).cardColor,
-              onPressed: onStartPressed,
-              icon: const Icon(
-                Icons.play_circle_outline,
+              onPressed: isRunning ? onPausePressed : onStartPressed,
+              icon: Icon(
+                isRunning
+                    ? Icons.pause_circle_outline_rounded
+                    : Icons.play_circle_outline,
               ),
             )),
           ),
@@ -67,7 +82,10 @@ class HomeScreenState extends State<HomeScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(50),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
